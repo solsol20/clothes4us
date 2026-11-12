@@ -228,6 +228,21 @@ function crearAlmacen() {
     for (const p of posts.values()) if (p.uid === id) p.username = nuevo;
   }
 
+  // Cambia el correo/teléfono de la cuenta cuidando que siga siendo único.
+  async function cambiarContacto(id, viejo, nuevo) {
+    id = Number(id);
+    const refViejo = col('contactos').doc(idContacto(viejo));
+    const refNuevo = col('contactos').doc(idContacto(nuevo));
+    await db.runTransaction(async (t) => {
+      const s = await t.get(refNuevo);
+      if (s.exists && Number(s.data().uid) !== id) throw Object.assign(new Error('contacto repetido'), { codigo: 'DUP_CONTACTO' });
+      if (refViejo.path !== refNuevo.path) t.delete(refViejo);
+      t.set(refNuevo, { uid: id });
+      t.update(col('usuarios').doc(String(id)), { contacto: nuevo });
+    });
+    olvidarUsuario(id);
+  }
+
   // ------------------------------ sesiones ------------------------------
   const sesiones = new Map(); // hash -> { uid, expira, t }
   async function sesion(hash) {
@@ -457,7 +472,7 @@ function crearAlmacen() {
     cargar, posts, porFecha, crearPublicacion, cambiarPublicacion, borrarPublicacion, borrarComentarios,
     alternarSeguir, cortarVinculos, relacion, listarRed, prefsChat, prefChat, cambiarPrefChat,
     usuario, usuarioFresco, usuariosVarios, uidPorNombre, uidPorContacto, crearUsuario,
-    actualizarUsuario, renombrarUsuario, olvidarUsuario,
+    actualizarUsuario, renombrarUsuario, cambiarContacto, olvidarUsuario,
     sesion, crearSesion, borrarSesion, borrarSesionesDe,
     bloqueosDe, olvidarBloqueos,
     nextId, borrarConsulta

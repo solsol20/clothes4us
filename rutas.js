@@ -3,6 +3,7 @@
 // carrito, perfil, calificaciones, chats, bloqueos y denuncias) sobre Firestore.
 // El login vive en server.js. Se conecta con: registrarRutas(app, { almacen, ... }).
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const CATEGORIAS = { ropa: 'Ropa', muebles: 'Muebles', musica: 'Música', anuncio: 'Anuncio' };
 function normCategoria(c) {
@@ -45,7 +46,7 @@ const EDAD_MIN_DENUNCIANTE_MS = 24 * 3600 * 1000;
 function fallo(status, mensaje) { return Object.assign(new Error(mensaje), { status, mensaje }); }
 
 function registrarRutas(app, ctx) {
-  const { almacen: A, requiereSesion: sesion, limitar, validarUsername, validarPassword, sha256, leerCookie, COOKIE, esAdmin } = ctx;
+  const { almacen: A, requiereSesion: sesion, limitar, validarUsername, validarPassword, sha256, leerCookie, COOKIE, esAdmin, normalizarContacto, enviarCodigo } = ctx;
   const { db, FV, col } = A;
   const lectura = limitar(600, 5);
   const sondeo = limitar(900, 5);
@@ -645,6 +646,53 @@ function registrarRutas(app, ctx) {
     // Cierra el resto de las sesiones abiertas (otros dispositivos) y deja esta.
     await A.borrarSesionesDe(u.id, leerCookie(req, COOKIE));
     res.json({ ok: true });
+  }));
+
+  // Cambiar el correo o teléfono de la cuenta. Dos pasos: (1) contraseña + contacto nuevo -> se manda un
+  // código AL CONTACTO NUEVO (así se comprueba que es tuyo); (2) con ese código se confirma el cambio.
+  app.post('/api/perfil/contacto/pedir', sesion, limitar(5, 15), ruta(async (req, res) => {
+    const { password } = req.body || {};
+    const c = normalizarContacto(req.body && req.body.contacto);
+    if (c.error) return res.status(400).json({ error: c.error });
+    const u = await A.usuarioFresco(req.usuario.id);
+    const ok = u && typeof password === 'string' && (await bcrypt.compare(password, u.password));
+    if (!ok) return res.status(400).json({ error: 'La contraseña no es correcta.' });
+    if (c.valor === u.contacto) return res.status(400).json({ error: 'Ese ya es tu correo o número actual.' });
+    const dueno = await A.uidPorContacto(c.valor);
+    if (dueno && dueno !== u.id) return res.status(400).json({ error: 'Ya hay una cuenta con ese correo o número.' });
+    const codigo = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+    await col('cambiosContacto').doc(String(u.id)).set({
+      nuevo: c.valor, tipo: c.tipo, codigoHash: sha256(codigo + ':cc:' + u.id), intentos: 0,
+      expira: Date.now() + 15 * 60 * 1000
+    });
+    await enviarCodigo(c.valor, c.tipo, u.username, codigo);
+    res.json({ ok: true, mensaje: 'Te enviamos un código de 6 números a ' + c.valor + '. Vence en 15 minutos.' });
+  }));
+
+  app.post('/api/perfil/contacto/confirmar', sesion, limitar(15, 15), ruta(async (req, res) => {
+    const codigo = String((req.body && req.body.codigo) || '').trim();
+    const malCodigo = { error: 'El código es incorrecto o venció. Pedí uno nuevo.' };
+    if (!/^[0-9]{6}$/.test(codigo)) return res.status(400).json({ error: 'El código tiene 6 números.' });
+    const u = await A.usuarioFresco(req.usuario.id);
+    if (!u) return res.status(401).json({ error: 'Iniciá sesión de nuevo.' });
+    const ref = col('cambiosContacto').doc(String(u.id));
+    const snap = await ref.get();
+    const rec = snap.exists ? snap.data() : null;
+    if (!rec || Number(rec.expira) < Date.now() || Number(rec.intentos) >= 5) return res.status(400).json(malCodigo);
+    const dado = Buffer.from(sha256(codigo + ':cc:' + u.id));
+    const guardado = Buffer.from(String(rec.codigoHash));
+    if (dado.length !== guardado.length || !crypto.timingSafeEqual(dado, guardado)) {
+      await ref.update({ intentos: FV.increment(1) });
+      return res.status(400).json(malCodigo);
+    }
+    try {
+      await A.cambiarContacto(u.id, u.contacto, rec.nuevo);
+    } catch (e) {
+      if (e && e.codigo === 'DUP_CONTACTO') return res.status(400).json({ error: 'Ya hay una cuenta con ese correo o número.' });
+      throw e;
+    }
+    await ref.delete();
+    res.json({ ok: true, contacto: rec.nuevo });
   }));
 
   app.post('/api/usuarios/:id/calificar', sesion, limitar(30, 15), ruta(async (req, res) => {

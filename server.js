@@ -381,7 +381,7 @@ app.post('/api/restablecer', limitar(15, 15), async (req, res) => {
 });
 
 // Publicaciones, comentarios, guardados, carrito, perfil, chats, bloqueos y denuncias.
-registrarRutas(app, { almacen: A, requiereSesion, limitar, validarUsername, validarPassword, sha256, leerCookie, COOKIE, esAdmin });
+registrarRutas(app, { almacen: A, requiereSesion, limitar, validarUsername, validarPassword, sha256, leerCookie, COOKIE, esAdmin, normalizarContacto, enviarCodigo });
 
 // Errores al leer el JSON (muy grande o mal formado) -> respuesta en JSON, no HTML.
 app.use((err, req, res, next) => {

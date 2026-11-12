@@ -1191,6 +1191,32 @@
       });
     };
 
+    // cambiar correo o teléfono (se verifica con un código enviado al contacto nuevo)
+    $('contactoActual').textContent = yo.contacto || '-';
+    $('btnPedirContacto').onclick = function () {
+      var btn = $('btnPedirContacto');
+      btn.disabled = true;
+      api('/perfil/contacto/pedir', 'POST', { contacto: $('contactoNuevo').value, password: $('contactoPass').value }).then(function (r) {
+        btn.disabled = false;
+        if (!r.ok) { aviso(r.data.error || 'No se pudo enviar el código.', 'error'); return; }
+        $('contactoPaso2').hidden = false;
+        $('contactoCodigo').focus();
+        aviso(r.data.mensaje || 'Te enviamos un código.', 'ok');
+      });
+    };
+    $('btnConfirmarContacto').onclick = function () {
+      var btn = $('btnConfirmarContacto');
+      btn.disabled = true;
+      api('/perfil/contacto/confirmar', 'POST', { codigo: $('contactoCodigo').value }).then(function (r) {
+        btn.disabled = false;
+        if (!r.ok) { aviso(r.data.error || 'No se pudo cambiar.', 'error'); return; }
+        $('contactoActual').textContent = r.data.contacto;
+        $('contactoNuevo').value = ''; $('contactoPass').value = ''; $('contactoCodigo').value = '';
+        $('contactoPaso2').hidden = true;
+        aviso('Listo: tu correo o teléfono se actualizó.', 'ok');
+      });
+    };
+
     misPublicaciones(yo.nombre, 'Aún no tenés publicaciones en tu perfil. ¡Escribí una arriba!');
   }
 

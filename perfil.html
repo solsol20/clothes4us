@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="icon" type="image/png" href="/img/clothes4uslogosinfondo.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mi Perfil - Clothes4Us</title>
@@ -132,6 +131,19 @@
           <label for="verPasswords">Mostrar contraseñas</label>
         </div>
         <button type="button" id="btnCambiarPass" class="btn-aero-action">Cambiar contraseña</button>
+
+        <h3 style="margin-top:18px;">Correo o teléfono de la cuenta</h3>
+        <p class="auth-msg">Actual: <strong id="contactoActual">-</strong>. Ahí te llegan los códigos para recuperar tu contraseña.</p>
+        <label for="contactoNuevo">Correo o teléfono nuevo:</label>
+        <input type="text" id="contactoNuevo" autocomplete="email" placeholder="tucorreo@gmail.com">
+        <label for="contactoPass">Tu contraseña actual:</label>
+        <input type="password" id="contactoPass" autocomplete="current-password">
+        <button type="button" id="btnPedirContacto" class="btn-aero-action">Enviarme un código</button>
+        <div id="contactoPaso2" hidden>
+          <label for="contactoCodigo">Código de 6 números que te enviamos:</label>
+          <input type="text" id="contactoCodigo" inputmode="numeric" maxlength="6" placeholder="123456" autocomplete="one-time-code">
+          <button type="button" id="btnConfirmarContacto" class="btn-aero-action">Confirmar cambio</button>
+        </div>
       </div>
     </section>
 
