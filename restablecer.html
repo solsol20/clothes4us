@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nueva contraseña - Clothes4Us</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body data-page="restablecer">
+
+  <header class="top-header">
+    <div class="logo-section">
+      <a href="index.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit;">
+        <img src="img/clothes4uslogosinfondo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+        <h1>Clothes4Us</h1>
+      </a>
+    </div>
+  </header>
+
+  <main class="aero-wrapper auth-wrapper">
+    <div class="aero-panel auth-panel">
+      <h3>Crear nueva contraseña</h3>
+      <p class="auth-sub">Ingresá el código de 6 números que te enviamos y elegí tu nueva contraseña. El código vence en 15 minutos.</p>
+
+      <div id="alerta" class="auth-alert" role="alert" aria-live="assertive"></div>
+
+      <form id="form-restablecer" novalidate>
+        <label for="contacto">Correo o teléfono:</label>
+        <input type="text" id="contacto" autocomplete="email" autocapitalize="none" autocorrect="off"
+               spellcheck="false" required placeholder="Tu correo o teléfono registrado">
+
+        <label for="codigo">Código de 6 números:</label>
+        <input type="text" id="codigo" inputmode="numeric" autocomplete="one-time-code"
+               pattern="[0-9]{6}" maxlength="6" required placeholder="123456">
+
+        <label for="password">Nueva contraseña:</label>
+        <div class="pw-wrap">
+          <input type="password" id="password" autocomplete="new-password" required placeholder="Nueva contraseña">
+          <button type="button" class="pw-toggle" data-ver="password" aria-label="Mostrar contraseña" aria-pressed="false">
+            <svg class="ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="ojo-tachado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+        <ul class="auth-reglas" data-reglas-de="password">
+          <li data-regla="largo">8 o más caracteres</li>
+          <li data-regla="minuscula">Una minúscula</li>
+          <li data-regla="mayuscula">Una mayúscula</li>
+          <li data-regla="numero">Un número</li>
+          <li data-regla="simbolo">Un símbolo</li>
+        </ul>
+
+        <label for="confirmar">Repetir contraseña:</label>
+        <div class="pw-wrap">
+          <input type="password" id="confirmar" autocomplete="new-password" required placeholder="Escribila de nuevo" aria-describedby="msg-confirmar">
+          <button type="button" class="pw-toggle" data-ver="confirmar" aria-label="Mostrar contraseña" aria-pressed="false">
+            <svg class="ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="ojo-tachado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+        <p id="msg-confirmar" class="auth-msg"></p>
+
+        <button type="submit" id="btn-enviar" class="btn-aero-action">Guardar nueva contraseña</button>
+      </form>
+
+      <div class="auth-links">
+        ¿No te llegó el código? <a href="recuperar.html">Pedir otro</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="idioma.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>

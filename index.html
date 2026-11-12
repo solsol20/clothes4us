@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feria Virtual & Social - Clothes4Us</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body data-page="inicio">
+
+  <header class="top-header">
+    <div class="logo-section">
+      <a href="index.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit;">
+        <img src="img/clothes4uslogosinfondo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+        <h1>Clothes4Us</h1>
+      </a>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" placeholder="Buscar buzos, pantalones, usuarios..." aria-label="Buscar">
+      <button type="button">Buscar</button>
+    </div>
+
+    <div class="user-quick-auth">
+      <a href="login.html" class="btn-glass" data-ico="usuario">Iniciar Sesión / Registrarse</a>
+    </div>
+  </header>
+
+  <nav class="main-nav">
+    <ul>
+      <li><a href="index.html" class="active" data-ico="casa">Inicio</a></li>
+      <li><a href="articulos.html" data-ico="marcador">Guardados</a></li>
+      <li><a href="chats.html" data-ico="comentario">Chats</a></li>
+      <li><a href="carrito.html" data-ico="carrito">Carrito</a></li>
+      <li><a href="perfil.html" data-ico="usuario">Mi Perfil</a></li>
+      <li><a href="donar.html" data-ico="corazon">Donar</a></li>
+      <li><a href="ayuda.html" data-ico="ayuda">Ayuda</a></li>
+    </ul>
+  </nav>
+
+  <main class="aero-wrapper">
+
+    <aside class="aero-sidebar">
+      <div class="aero-panel" id="panelFiltros">
+        <h3 id="tituloFiltros" data-ico="filtro">Filtros de Búsqueda</h3>
+        <form onsubmit="return false;">
+          <label for="fMin">Precio entre (ARS):</label>
+          <div class="price-inputs">
+            <input type="number" id="fMin" placeholder="Min" min="0">
+            <input type="number" id="fMax" placeholder="Max" min="0" aria-label="Precio máximo">
+          </div>
+
+          <label>Categorías:</label>
+          <ul class="checkbox-group">
+            <li><input type="checkbox" id="c1" data-cat="ropa" checked> <label for="c1" style="display:inline;">Ropa</label></li>
+            <li><input type="checkbox" id="c2" data-cat="muebles" checked> <label for="c2" style="display:inline;">Muebles</label></li>
+            <li><input type="checkbox" id="c3" data-cat="musica" checked> <label for="c3" style="display:inline;">Música</label></li>
+            <li><input type="checkbox" id="c4" data-cat="anuncio" checked> <label for="c4" style="display:inline;">Anuncios y ferias</label></li>
+          </ul>
+
+          <label>Tipo de oferta:</label>
+          <ul class="checkbox-group">
+            <li><input type="checkbox" id="t1"> <label for="t1" style="display:inline;">Solo Trueque ($0)</label></li>
+          </ul>
+
+          <button type="button" id="btnFiltros" class="btn-aero-action">Aplicar Filtros</button>
+        </form>
+      </div>
+    </aside>
+
+    <section class="aero-feed">
+
+      <div class="aero-panel create-post">
+        <h3>¿Qué querés publicar? Una prenda, un trueque o un anuncio</h3>
+        <input type="text" id="pubTitulo" maxlength="80" placeholder="Título (ej: Campera Puffer talle L)" aria-label="Título de la publicación" style="margin-bottom:8px;">
+        <textarea id="pubTexto" maxlength="1000" placeholder="Contanos qué tenés, estado, talle o si buscás trueque..." aria-label="Descripción"></textarea>
+        <div class="post-row">
+          <input type="number" id="pubPrecio" min="0" placeholder="Precio ARS ($0 trueque)" aria-label="Precio en pesos">
+          <select id="pubCategoria" aria-label="Categoría">
+            <option value="ropa">Ropa</option>
+            <option value="muebles">Muebles</option>
+            <option value="musica">Música</option>
+            <option value="anuncio">Anuncio / Feria presencial (sin precio)</option>
+          </select>
+        </div>
+        <label for="pubImagen">Foto (opcional):</label>
+        <input type="file" id="pubImagen" accept="image/*">
+        <img id="pubPreview" class="post-image-content" alt="Vista previa de la foto" hidden style="margin-top:8px;max-height:200px;">
+        <button type="button" id="btnPublicar" class="btn-aero-action">Publicar en el Muro</button>
+      </div>
+
+      <div id="muro-publicaciones">
+        <div class="aero-panel">
+          <p style="text-align:center; color:#666;">Cargando publicaciones…</p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="aero-widgets">
+      <div class="aero-panel">
+        <h3> Moda Sustentable</h3>
+        <p>Al reutilizar e intercambiar ropa evitas el consumo innecesario y la contaminación de la industria textil.</p>
+        <a href="donar.html" style="color:#0055a5; font-weight:bold; display:block; margin-top:10px;">Ver causas ecologistas &raquo;</a>
+      </div>
+    </aside>
+
+  </main>
+
+  <script src="idioma.js"></script>
+  <script src="auth.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
