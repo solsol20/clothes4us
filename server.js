@@ -398,7 +398,7 @@ app.use('/api', (req, res) => res.status(404).json({ error: 'No encontrado.' }))
 // almacen.js, rutas.js, data.sql, package.json, .env, llaves .json ni node_modules.
 // ---------------------------------------------------------------------------
 const EXTENSIONES_PUBLICAS = new Set(['.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.jfif', '.gif', '.svg', '.webp', '.ico']);
-const JS_PUBLICOS = new Set(['script.js', 'auth.js', 'idioma.js', 'faq.js', 'admin.js']); // 👉 si agregás otro .js para el navegador, sumalo acá
+const JS_PUBLICOS = new Set(['script.js', 'auth.js', 'idioma.js', 'faq.js', 'admin.js', 'tiempo-real.js']); // 👉 si agregás otro .js para el navegador, sumalo acá
 
 app.use((req, res, next) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') return next();

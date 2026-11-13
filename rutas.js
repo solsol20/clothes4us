@@ -844,6 +844,42 @@ function registrarRutas(app, ctx) {
     res.json({ ok: true });
   }));
 
+  // ------------------------------ eventos en tiempo real (SSE) ------------------------------
+  const conexiones = new Map(); // uid -> conexiones abiertas (una por pestaña o dispositivo)
+
+  function emitir(uid, evento, datos) {
+    const set = conexiones.get(uid);
+    if (!set) return;
+    const msg = `event: ${evento}\ndata: ${JSON.stringify(datos)}\n\n`;
+    for (const r of set) { try { r.write(msg); } catch (e) { set.delete(r); } }
+  }
+
+  app.get('/api/eventos', sesion, (req, res) => {
+    const uid = req.usuario.id;
+    res.set({
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Cache-Control': 'no-cache, no-transform',
+      'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no' // para que Render/Nginx no retengan los eventos
+    });
+    res.flushHeaders();
+    res.write('retry: 3000\n\n');
+
+    let set = conexiones.get(uid);
+    if (!set) { set = new Set(); conexiones.set(uid, set); }
+    // Máximo 5 pestañas por persona: si pasa, se cierra la más vieja.
+    if (set.size >= 5) { const vieja = set.values().next().value; set.delete(vieja); try { vieja.end(); } catch (e) { /* ya cerrada */ } }
+    set.add(res);
+
+    // Cada 25 s un "latido" para que el celu o el proxy no corten la conexión por inactividad.
+    const latido = setInterval(() => { try { res.write(': ping\n\n'); } catch (e) { /* se limpia en close */ } }, 25000);
+    req.on('close', () => {
+      clearInterval(latido);
+      set.delete(res);
+      if (!set.size) conexiones.delete(uid);
+    });
+  });
+
   // ------------------------------ chats ------------------------------
   const parKey = (a, b) => (a < b ? `${a}_${b}` : `${b}_${a}`);
 
@@ -973,6 +1009,20 @@ function registrarRutas(app, ctx) {
     }, { merge: true });
     await lote.commit();
     resumenes.delete(otro);
+
+    // Aviso en vivo al destinatario (si tiene el chat silenciado, el aviso llega pero sin cartelito).
+    try {
+      const pfOtro = await prefDe(otro, yo);
+      emitir(otro, 'mensaje', {
+        chatId: yo,
+        de: { id: yo, nombre: req.usuario.nombre, avatar: req.usuario.avatar || '' },
+        texto: texto.slice(0, 120),
+        foto: !!imagen,
+        silenciado: !!pfOtro.silenciado,
+        fecha: new Date().toISOString()
+      });
+    } catch (e) { console.error('emitir mensaje:', e.message); }
+
     res.status(201).json({ id });
   }));
 }
